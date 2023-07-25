@@ -11,6 +11,7 @@ date: "`r Sys.Date()`"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/tmp')
 ```
 
 # This R markdown document
@@ -33,7 +34,7 @@ install.packages('fpp3') # package for applying simple forecasting methods
 install.packages('tsibble') # package for dealing with time series data sets and tsibble objects
 install.packages('tidyverse') # collection of R packages for data manipulation, analysis, and visualisation
 install.packages('lubridate') # working with dates and times
-remotes::install_github('eco4cast/neon4cast') # package from NEON4cast challenge organisers to assist with forecast building and submission
+remotes::install_github('eco4cast/neon4cast', force = TRUE) # package from NEON4cast challenge organisers to assist with forecast building and submission
 ```
 
 Additionally, R version 4.2 is required to run the neon4cast package. It's also worth checking your Rtools is up to date and compatible with R 4.2, see (https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html). 
@@ -93,7 +94,6 @@ aquatic_sites <- read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-
 Let's take a look at the targets data!
 ```{r eval = T, echo = F}
 targets[1000:1010,]
-
 ```
 
 The columns of the targets file show the time step (daily for aquatics challenge), the 4 character site code (`site_id`), the variable being measured, and the mean daily observation. To look at only the lakes we can subset the targets and aquatic sites to those which have the `field_site_subtype` of `Lake`. 
@@ -202,7 +202,7 @@ We can then look at the future weather forecasts in the same way but using the `
 # New forecast only available at 5am UTC the next day
 
 forecast_date <- Sys.Date() 
-noaa_date <- forecast_date - days(1)
+noaa_date <- forecast_date - days(2)
 
 noaa_future_s3 <- neon4cast::noaa_stage2(start_date = as.character(noaa_date))
 variables <- c("air_temperature")
@@ -372,7 +372,7 @@ my_model_id <- 'example_ID'
 
 temp_lm_forecast_EFI <- temp_lm_forecast %>%
   mutate(model_id = my_model_id,
-         reference_datetime = as_date(min(datetime)) - days(1),
+         reference_datetime = as_date(min(datetime)) - days(2),
          family = 'ensemble',
          parameter = as.character(parameter)) %>%
   select(datetime, reference_datetime, site_id, family, parameter, variable, prediction, model_id)
@@ -409,7 +409,7 @@ neon4cast::forecast_output_validator(file.path('Forecasts',forecast_file_1))
 ```{r eval = FALSE}
 # can uses the neon4cast::forecast_output_validator() to check the forecast is in the right format
 neon4cast::submit(forecast_file = file.path('Forecasts', forecast_file_1),
-                  ask = FALSE) # if ask = T (default), it will produce a pop-up box asking if you want to submit
+                  ask = TRUE) # if ask = T (default), it will produce a pop-up box asking if you want to submit
 ```
 
 Is the linear model a reasonable relationship between air temperature and water temperature? Would some non-linear relationship be better? What about using yesterday's air and water temperatures to predict tomorrow? Or including additional parameters? There's a lot of variability in water temperatures unexplained by air temperature alone.

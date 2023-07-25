@@ -47,7 +47,7 @@ noaa_past_mean <- noaa_past |>
 # New forecast only available at 5am UTC the next day
 
 forecast_date <- Sys.Date() 
-noaa_date <- forecast_date - days(1)
+noaa_date <- forecast_date - days(2)
 
 df_future <- neon4cast::noaa_stage2()
 
@@ -116,7 +116,7 @@ my_model_id <- 'example_ID'
 
 temp_lm_forecast_EFI <- temp_lm_forecast %>%
   mutate(model_id = my_model_id,
-         reference_datetime = as_date(min(datetime)) - days(1),
+         reference_datetime = as_date(min(datetime)) - days(2),
          family = 'ensemble',
          parameter = as.character(parameter)) %>%
   select(model_id, datetime, reference_datetime, site_id, family, parameter, variable, prediction)
